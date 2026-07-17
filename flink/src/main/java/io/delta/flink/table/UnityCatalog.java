@@ -153,6 +153,27 @@ public class UnityCatalog implements DeltaCatalog {
     }
   }
 
+  /**
+   * Builds the {@code ucConfig} map consumed by {@link UCDeltaTokenBasedRestClient}: the endpoint
+   * under {@code uri}, the auth settings under the {@code auth.} prefix, and the app versions under
+   * the {@code appVersions.} prefix.
+   */
+  static Map<String, String> buildUcConfig(
+      URI endpoint,
+      AuthMode authMode,
+      String token,
+      URI oauthUri,
+      String oauthClientId,
+      String oauthClientSecret) {
+    Map<String, String> ucConfig = new HashMap<>();
+    ucConfig.put("uri", endpoint.toString());
+    buildTokenProviderConf(authMode, token, oauthUri, oauthClientId, oauthClientSecret)
+        .forEach((key, value) -> ucConfig.put("auth." + key, value));
+    VersionHelper.appVersions()
+        .forEach((name, version) -> ucConfig.put("appVersions." + name, version));
+    return ucConfig;
+  }
+
   private final String name;
   private final URI endpoint;
   private final AuthMode authMode;
